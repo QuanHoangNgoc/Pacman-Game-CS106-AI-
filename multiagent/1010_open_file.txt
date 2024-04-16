@@ -1,0 +1,18 @@
+10-23-28
+['-l', 'mediumClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521179']
+[1739.0]
+[True]
+1.0
+END
+10-24@70
+['-l', 'mediumClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521179']
+[1739.0]
+[True]
+1.0
+END
+10-25=37
+['-l', 'mediumClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521179']
+[1739.0]
+[True]
+1.0
+END

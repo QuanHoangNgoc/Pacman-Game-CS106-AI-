@@ -1,0 +1,108 @@
+3-36-73
+['-l', 'capsuleClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-430.0, 368.0, 109.0, -404.0, -307.0]
+[False, False, False, False, False]
+0.0
+END
+3-37-58
+['-l', 'capsuleClassic', '-p', 'MinimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-430.0, -506.0, -548.0, -333.0, -496.0]
+[False, False, False, False, False]
+0.0
+END
+3-38-56
+['-l', 'capsuleClassic', '-p', 'AlphaBetaAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-430.0, -506.0, -548.0, -333.0, -496.0]
+[False, False, False, False, False]
+0.0
+END
+3-39-36
+['-l', 'smallClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[1221.0, 1249.0, 1070.0, -4.0, 1329.0]
+[True, True, True, False, True]
+0.8
+END
+3-41-63
+['-l', 'smallClassic', '-p', 'MinimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-204.0, 230.0, 989.0, -4.0, 1329.0]
+[False, False, True, False, True]
+0.4
+END
+3-43-66
+['-l', 'smallClassic', '-p', 'AlphaBetaAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-204.0, 230.0, 989.0, -4.0, 1329.0]
+[False, False, True, False, True]
+0.4
+END
+3-44-40
+['-l', 'mediumClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-560.0, 1520.0, -1076.0, 1512.0, 1373.0]
+[False, True, False, True, True]
+0.6
+END
+3-50-42
+['-l', 'mediumClassic', '-p', 'MinimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-558.0, 1520.0, -1074.0, 1512.0, 1373.0]
+[False, True, False, True, True]
+0.6
+END
+3-56-90
+['-l', 'mediumClassic', '-p', 'AlphaBetaAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-558.0, 1520.0, -1074.0, 1512.0, 1373.0]
+[False, True, False, True, True]
+0.6
+END
+3-59-15
+['-l', 'minimaxClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[513.0, -495.0, -494.0, 513.0, -497.0]
+[True, False, False, True, False]
+0.4
+END
+3-59-87
+['-l', 'minimaxClassic', '-p', 'MinimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-498.0, -497.0, -495.0, 513.0, -497.0]
+[False, False, False, True, False]
+0.2
+END
+3-59-88
+['-l', 'minimaxClassic', '-p', 'AlphaBetaAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-498.0, -497.0, -495.0, 513.0, -497.0]
+[False, False, False, True, False]
+0.2
+END
+3-59-38
+['-l', 'testClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[420.0, 540.0, 552.0, 546.0, 520.0]
+[True, True, True, True, True]
+1.0
+END
+4-0-13
+['-l', 'testClassic', '-p', 'MinimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[420.0, 540.0, 518.0, 544.0, 520.0]
+[True, True, True, True, True]
+1.0
+END
+4-0-32
+['-l', 'testClassic', '-p', 'AlphaBetaAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[420.0, 540.0, 518.0, 544.0, 520.0]
+[True, True, True, True, True]
+1.0
+END
+4-0-40
+['-l', 'trappedClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-502.0, -502.0, -502.0, -502.0, -502.0]
+[False, False, False, False, False]
+0.0
+END
+4-0-47
+['-l', 'trappedClassic', '-p', 'MinimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-501.0, -501.0, -501.0, -501.0, -501.0]
+[False, False, False, False, False]
+0.0
+END
+4-0-23
+['-l', 'trappedClassic', '-p', 'AlphaBetaAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521183']
+[-501.0, -501.0, -501.0, -501.0, -501.0]
+[False, False, False, False, False]
+0.0
+END

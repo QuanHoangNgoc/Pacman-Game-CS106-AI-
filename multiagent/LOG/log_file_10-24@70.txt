@@ -1,0 +1,2221 @@
+['-l', 'mediumClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521178']
+
+"""
+Configuration Variables:
+
+ALLOW_LOG (bool): Controls whether logging is enabled.
+GRAPHIC (bool): Controls whether graphics are displayed (likely during gameplay).
+SCORE_MODE (bool): Purpose unclear from the comment.
+USE_NEW_MODE (bool): Enables a new mode (details unknown).
+TOP_NN (int): Number of nearest neighbors to consider (possibly for evaluation).
+PATIENT (int): Patience parameter (usage unclear without context).
+Ghost Penalty Mode:
+
+FREEZE_GHOST_MODE_PEN (bool): If True, ignores penalized ghosts in calculations (comment unclear on "con nao bi dong bang").
+DYNAMIC_GHOST_PEN (bool): Controls static or dynamic penalty for ghosts (comment needs clarification).
+DYNAMIC_GHOST_BONUS (bool): Enables dynamic ghost bonus (details unknown).
+Game Parameters:
+
+EAT_GHOST_DIS (int): Minimum distance required to eat a ghost.
+rate_g3 (float): Reward for eating 3 ghosts (unclear unit).
+ENDGAME_FOOD (int): Number of food items remaining at game end.
+rate_gscore (float): Weight for ghost score in evaluation (unclear range).
+rate_gwin (float): Reward for winning the game (unclear unit).
+rate_fover (float): Reward for having more food than ghosts (unclear unit).
+rate_g1 (float): Weight for single ghost in evaluation (unclear range).
+rate_f3 (float): Reward for eating 3 food items (unclear unit).
+Logging and File Handling:
+
+log_str (str): Empty string, likely intended for log messages (unused).
+Imports: Standard library modules for randomness, date/time, and file operations.
+current_time (datetime.time): Gets the current time (only the hour and minute).
+_strrd (str): Creates a timestamp string with hour, minute, and random number (unclear purpose).
+os.makedirs('LOG', exist_ok=True): Creates the LOG directory if it doesn't exist.
+LOG_FILE: Opens a new log file with the timestamp in the LOG directory.
+OPEN_FILE: Opens a file named 1010_open_file.txt in append mode (purpose unclear).
+Training and Game Parameters:
+
+TRAINING (bool): Controls whether training mode is active.
+NUM_TURN_GAME (int): Number of turns in a game (possibly uninitialized).
+NUM_GAME (int): Total number of games to play (set to 7).
+NUM_TRAIN (int): Number of training games (set to 2).
+Git Commands (Commented Out):
+
+These commands demonstrate how to run the program with different agents and parameters, as well as basic Git operations. However, using git push --force is generally discouraged as it rewrites history on the remote repository.
+Overall Comments:
+
+Variable names could be more descriptive (e.g., allow_logging instead of ALLOW_LOG).
+Comments could be improved to provide clearer explanations.
+Some constants lack context or units for proper understanding.
+Consider using a separate configuration file or module for better organization.
+"""
+
+##############################################################################################
+# Configuration for running the Pacman game.
+##############################################################################################
+# Enable or disable logging (currently disabled).
+ALLOW_LOGGING = False
+# Enable or disable graphics for the game (currently disabled).
+GRAPHICS_ENABLED = False
+
+# Flag for a specific scoring method (purpose unclear).
+SCORE_MODE = False
+# Enable a new mode (details unknown from the code).
+USE_NEW_MODE = True
+# Number of training games.
+NUM_TRAIN = 2
+# Total number of games to play.
+NUM_GAMES = NUM_TRAIN + 1  # Consider using a clearer calculation
+
+
+##############################################################################################
+# Mode for calculating ghost penalty:
+##############################################################################################
+# If True, ignores penalized ghosts in calculations.
+# If False, considers both penalized and non-penalized ghosts.
+FREEZE_GHOST_MODE_PENALTY = True  # More descriptive name
+# Controls static or dynamic penalty for ghosts:
+# False: Static penalty (details unknown).
+DYNAMIC_GHOST_PENALTY = False
+# Enables dynamic ghost bonus (details unknown).
+DYNAMIC_GHOST_BONUS = False
+
+
+##############################################################################################
+# Game Parameters:
+##############################################################################################
+# Number of nearest neighbors to consider for evaluation (e.g., nearest food or ghosts).
+TOP_NEIGHBORS = 3
+# Patience parameter (usage unclear without context).
+PATIENCE = 2
+# Minimum distance required to eat a ghost (presumably in grid units).
+EAT_GHOST_DISTANCE = 11
+# Reward for eating 3 ghosts (unit could be points or score).
+RATE_EAT_3_GHOSTS = 3.0
+# Number of food items remaining at game end (indicates a win?).
+ENDGAME_FOOD_COUNT = 5
+# Weight for ghost score in evaluation (likely between 0 and 1).
+RATE_SCORE = 0.25
+
+# Reward for winning the game (unit could be points or score).
+RATE_WIN = 10
+# Reward for having more food than ghosts (unit could be points or score).
+RATE_OVER_GAME = 20
+# Weight for a single ghost in evaluation (likely between 0 and 1).
+RATE_GHOST = 1.5 
+# Reward for eating food items 
+RATE_EAT_FOOD = 0.75 
+
+
+##############################################################################################
+# Logging and File Handling (Improved with Error Handling):
+##############################################################################################
+# Empty string for potential log messages.
+log_str = ""
+import random
+import datetime
+import os
+ID_LOG_FILE = str(random.randint(1, 100))
+def create_log_file():
+    """Creates a new log file with a timestamp."""
+    current_time = datetime.datetime.now().time()
+    timestamp = current_time.strftime('%H-%M')  # No need for random number
+    global ID_LOG_FILE
+    timestamp = timestamp + "@" + ID_LOG_FILE 
+    ID_LOG_FILE = timestamp 
+    
+    try:
+        # Create the LOG directory if it doesn't exist.
+        os.makedirs('LOG', exist_ok=True)
+
+        # Open a new log file with the timestamp in the LOG directory.
+        filename = f'log_file_{timestamp}.txt'
+        global LOG_FILE
+        LOG_FILE = open(os.path.join('LOG', filename), 'w')
+    except OSError as e:
+        print(f"Error creating log file: {e}")
+
+# Open the log file (call the function to ensure it's created)
+create_log_file()
+# File for unknown purpose (consider removing or investigating).
+OPEN_FILE = open('1010_open_file.txt', 'a')
+TRAINING = False
+# Number of turns in a game (possibly uninitialized).
+NUM_TURNS_GAME = 0  # Corrected variable name
+
+
+
+'''
+python pacman.py -l mediumClassic -p MinimaxAgent -a depth=3,evalFn=betterEvaluationFunction -s 22521178 
+python pacman.py -l mediumClassic -p ExpectimaxAgent -a depth=2,evalFn=betterEvaluationFunction -s 22521178 
+python pacman.py -l mediumClassic -p ExpectimaxAgent -a depth=3,evalFn=betterEvaluationFunction -s 22521178 
+git init
+git status
+git add . 
+git commit -m "[folder upload -force]" 
+git branch -M main 
+git remote add origin https://github.com/QuanHoangNgoc/Container.git
+git push --force origin main
+'''
+
+
+
+--- 22521178 is options.randomSeed, pacman.py/readCommand()---
+
+---Game is running, pacman.py/runGame()---
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-61.05769230769231, -63.3, -59.05357142857143]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-59.30769230769231, -59.30769230769231, -55.0625]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-65.55357142857143, -61.3125, -55.06818181818182]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-61.5625, -55.31818181818182, -49.075]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North']
+[-57.575, -51.333333333333336, -47.075]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-47.32500000000001, -43.06818181818182, -51.583333333333336]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-50.32500000000001, -51.31818181818182, -47.0625, -49.09375, -55.57500000000001]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-50.333333333333336, -47.3125, -43.0576923076923]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-53.5625, -49.3076923076923, -47.07500000000001, -45.05357142857142]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-45.30357142857142, -49.5576923076923, -41.05]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[-47.3, -45.3, -51.55357142857143]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-47.55357142857143, -45.55357142857143, -42.30769230769231]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-49.80357142857143, -44.55769230769231, -39.3125]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[-44.749997500237484, -39.499997500237484, -34.249997500237484]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-38.27272727272727, -33.025000000000006, -43.52083333333333]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-33.249997500237484, -27.999997500237484, -38.499997500237484]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-38.27777777777778, -35.03125, -41.52777777777778]
+
+---define_sub_goal()---
+['West', 'Stop', 'North', 'South']
+[-31.999997500237484, -35.249997500237484, -31.249997500237484, -38.499997500237484]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[9.714285714285715, 12.958333333333329, -40.28125]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[12.750002499762516, 16.000002499762516, 9.500002499762516]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[15.899999999999999, 21.15, 10.649999999999999]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[25.999995001899578, 20.749995002049516, 15.499995002199462]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-24.515384615384615, -29.850000000000005, -35.159663865546214]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-20.00000499870023, -25.25000499855027, -30.500004998400318]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[-8.733333333333333, -30.875, -3.0208333333333335]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[28.74999500114981, 23.49999500129977, 33.999995000999846]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North']
+[25.075, 22.36785714285714, 28.45, 21.2]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[30.74999500099985, 25.49999500114981, 23.49999500129977]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North']
+[-27.166666666666664, -30.386363636363633, -31.588235294117645, -33.61538461538461]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-25.53301282051282, -28.3051948051948, -30.588235294117645]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-24.079166666666666, -27.050324675324674, -29.615384615384617, -24.365384615384617, -24.365384615384617]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-20.3, -24.25730519480519, -24.615384615384617]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-9.214285714285714, -17.06547619047619, -19.666666666666668]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[-4.2142857142857135, -13.882305194805195, -16.507305194805195, -16.507305194805195]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-5.2142857142857135, -87.96428571428572, -19.327380952380953, -167.46428571428572]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-0.1363636363636367, -5.416666666666667, -10.666666666666666]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-7.136363636363637, -10.386363636363637, -13.666666666666666]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-4.136363636363637, -7.958333333333333, -10.666666666666666, -7.416666666666667, -3.416666666666666]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-12.416666666666666, -12.416666666666666, -9.166666666666666]
+
+---define_sub_goal()---
+['West', 'Stop', 'North', 'South']
+[-4.166666666666666, -9.416666666666666, -12.666666666666666, -9.416666666666666]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-11.136363636363635, -14.416666666666666, -16.16468253968254]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-6.115384615384615, -11.386363636363637, -14.666666666666668]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-6.1, -10.365384615384615, -13.636363636363637, -7.115384615384615, -8.386363636363637]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-1.0999999999999996, -6.365384615384616, -7.365384615384616]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[-4.365384615384615, -9.636363636363637, 0.9000000000000004, -4.416666666666666]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.634615384615385, 3.65, -4.636363636363637]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-3.5999999999999996, 0.6499999999999999, -6.615384615384615]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.3846153846153846, 2.6346153846153846, -3.865384615384615]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[4.750002499762521, 9.000002499762521, 0.5000024997625219]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.636363636363637, 33.88636363636363, 37.166666666666664]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.5000024997625219, 4.750002499762521, 9.000002499762521]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[4.666666666666667, 8.964285714285714, 12.214285714285714]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[3.750002499762522, -0.49999750023747813, 52.75000249976252]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North']
+[8.916666666666668, 5.916666666666667, 54.88636363636363, 3.6666666666666665]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.7500024997625219, 42.25000249976252, 49.75000249976252]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[47.43939393939394, 49.50833333333333, 47.43939393939394, 51.75874125874126, 47.43939393939394]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[4.74999500159968, 8.99999500174963, 0.49999500144972653]
+
+---define_sub_goal()---
+['Stop', 'East', 'South']
+[8.761705685618729, 12.01142857142857, 4.511904761904762]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.49999500174963063, 4.749995001899578, 8.999995002049523]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.514423076923077, 8.758928571428571, 12.004166666666666]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.49999500174963063, 4.74999500159968, 8.999995001449726]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.5062111801242235, 8.751449275362319, 11.997282608695652]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.49999500174963063, 4.74999500159968, 8.999995001449726]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.498484848484848, 8.746428571428572, 8.748484848484848]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'South']
+[-0.5000049988501893, 0.49999500099984795, 4.74999500114981]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[4.497975708502024, 0.24509803921568651, 8.75]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.49999500144972653, 4.74999500159968, 0.49999500144972653, 0.49999500144972653, 8.99999500174963]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[8.753246753246753, 4.501923076923077, 9.004166666666666]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[2.749995001899578, 4.9999950020495225, -0.5000049982503696, 4.749995001749631]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[3.504385964912281, 4.756666666666667, 7.006944444444445]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-0.5000049979504775, 3.749995002199464, 5.999995002349403]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[3.5089743589743585, 5.758928571428572, 6.758974358974359, 8.75897435897436, 8.758741258741258]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-0.500004998100422, -4.750004998250369, 2.749995002049522]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-0.7437888198757765, 2.506666666666667, 4.5062111801242235, -0.7437888198757765, 3.5062111801242235]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.7499950017496306, -2.5000049984003203, -6.750004998550273]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-2.751515151515152, 1.5032467532467528, -2.751515151515152, -2.751515151515152, 2.501923076923077]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-2.5000049987002306, -3.500004998550274, -1.5000049988501896]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[-0.5499999999999998, -1.5655080213903747, -2.745614035087719]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-0.5000049988501893, -4.75000499870023, -5.750004998550273, -5.750004998550273]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[2.834821428571429, -0.5437500000000002, -4.760416666666666]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[4.9999950020495225, 2.749995001899578, -0.5000049985502737, 4.749995001749631, -0.5000049985502737]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[7.661764705882352, 5.261764705882353, 3.786764705882353]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[58.99999500204952, 4.749995002199464, 0.49999500234940264]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[64.85, 60.125, 55.392857142857146]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[58.999995001449726, 54.74999500159968, 50.49999500174963]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[61.916666666666664, 58.65625, 54.416666666666664]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[5.916666666666667, 3.65625, -0.6071428571428572]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[8.642857142857142, 5.65625, 3.392857142857143, 6.642857142857143, 8.642857142857142]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[5.931818181818182, 3.675, -0.5833333333333335]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[8.681818181818182, 5.6875, 3.4318181818181817, 8.681818181818182]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[-2.5625, -0.3076923076923075, 0.6666666666666665]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.4249999999999998, 2.6666666666666665, 0.4423076923076925]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-2.553571428571429, 0.6666666666666665, -3.5750000000000006, 1.6749999999999998, -3.5750000000000006]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.4249999999999998, 2.4318181818181817, 0.4166666666666665]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[-10.818181818181818, -11.824999999999998, -9.8125]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-10.057692307692308, -11.0625, -9.053571428571429]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-4.546875, -8.8, -9.803571428571429, -9.803571428571429, -8.8125]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-0.541666666666667, -4.794117647058823, -9.046875]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[4.7105263157894735, 0.45833333333333326, 0.45833333333333326, 8.960526315789474]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[8.710526315789474, 4.4625, 11.958333333333334]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[4.7105263157894735, 0.4624999999999999, 8.958333333333334]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[8.710526315789474, 4.4625, 11.958333333333334]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[4.708333333333333, 8.955882352941178, 0.4605263157894737]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.455882352941177, 8.703125, 11.949999999999998]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-2.55, 1.6964285714285718, 2.692307692307692]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[1.4423076923076925, 2.4375, 3.4318181818181817]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-5.818181818181818, -4.825, -6.8125]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[-6.068181818181818, -5.075, -0.8250000000000002, -6.068181818181818]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-4.818181818181818, -0.5681818181818183, 15.442307692307692]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-0.8125, 14.446428571428571, -0.8125, 16.442307692307693, 50.19642857142857]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[31.446428571428573, 4.6875, 78.19642857142857]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[75.19642857142857, 76.19642857142857, 29.446428571428573]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[7.699999999999999, 8.7, 9.7]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[7.692307692307692, 6.696428571428571, 5.696428571428571]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-19.0625, -20.057692307692307, -21.05357142857143]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[-22.0625, -23.057692307692307, 15.6875]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[19.6875, 20.6875, -19.0625]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[15.6875, 16.6875, 15.6875, 17.68181818181818, 15.6875]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-19.06818181818182, -20.0625, -18.075]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-23.068181818181824, -22.075, -21.083333333333332, -23.068181818181824, -23.068181818181824]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-18.06818181818182, -17.075, -16.083333333333332]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-21.06818181818182, -20.075, -19.083333333333332]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-16.06818181818182, -15.075, -14.083333333333334]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-19.06818181818182, -18.075, -17.083333333333332]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-14.068181818181818, -13.075, 2545.6666666666665]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-17.068181818181817, 2540.675, 2545.675]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[2545.675, 2550.675, 2545.675, 2555.675, 2545.675]
+
+---Game is running, pacman.py/runGame()---
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-511.796875, -510.8, -506.55357142857144]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-63.30769230769231, -62.30769230769231, -58.0625]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-62.55769230769231, -58.31818181818181, -52.075]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-60.56818181818182, -54.325, -48.083333333333336]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[-54.56818181818182, -48.325, -44.06818181818182]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-52.3125, -48.05769230769231, -56.56818181818182]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-47.31818181818182, -48.3125, -44.05769230769231, -46.083333333333336, -52.56818181818182]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-53.3125, -50.30769230769231, -46.05357142857143]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[-50.5625, -46.30769230769231, -46.075, -42.05357142857143]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-48.30357142857143, -52.55769230769231, -44.05]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[-44.3, -42.296875, -48.55357142857143]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-52.55, -50.546875, -45.3]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-50.796875, -45.55, -40.30357142857143]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North']
+[-45.499997500237484, -40.249997500237484, -34.999997500237484]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-35.26923076923077, -30.02083333333333, -40.517857142857146]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-36.249997500237484, -30.999997500237484, -41.499997500237484]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-31.27272727272727, -26.025000000000006, -36.52083333333333]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-34.999997500237484, -38.249997500237484, -34.249997500237484, -41.499997500237484]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-34.52272727272727, -34.02083333333333, -29.275000000000006]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-36.999997500237484, -40.249997500237484, -40.249997500237484, -43.49999750023748]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-34.03125, -37.27777777777778, -40.517857142857146]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[19.000002499762516, -34.249997500237484, -37.499997500237484, -30.999997500237484, -32.249997500237484]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[21.95833333333333, 18.714285714285715, -9.53125]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[25.00000249976252, 21.750002499762516, 18.500002499762516]
+
+---define_sub_goal()---
+['Stop', 'East', 'North', 'South']
+[24.74509803921568, 21.50549450549451, 28.172727272727272, 28.747975708502025]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-33.500004998550274, -30.250004998700234, -30.250004997800534]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-27.012500000000003, -30.28977272727273, -35.72916666666667, -33.74675324675325, -35.72916666666667]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-19.000004997800538, -24.2500049976506, -29.500004997800538]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-13.738095238095237, -19.015217391304347, -24.292490118577074]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-15.000004997800538, -20.2500049976506, -25.500004997500664]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-9.708333333333332, -14.991666666666664, -20.268181818181816]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-11.000004998100422, -16.25000499825037, -21.500004998100422]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-5.650375939849624, -10.953947368421051, -16.159663865546218]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-15.000004997800538, -18.250004997950477, -21.500004998100422, -15.000004998400321, -16.250004998100422]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-11.583333333333332, -14.896428571428569, -14.857142857142858]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-11.000004997800538, -14.2500049976506, -17.500004997500664, -10.250004997500662]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-10.196428571428571, -4.900375939849624, -9.974801061007959]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-13.000004998100422, -16.250004997950477, -19.500004997800538, -16.250004997500664]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[-12.904761904761902, -16.2, -8.7]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-8.250004997950478, -5.000004997800536, -11.500004998100422]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-0.47894736842105345, -4.828947368421053, -4.900375939849624, -0.9003759398496234, -8.150375939849624]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-4.997500662184962e-06, -4.250004997650597, -7.500004997800536]
+
+---define_sub_goal()---
+['Stop', 'East', 'North', 'South']
+[50.65625, -3.84375, 56.392857142857146, 3.40625]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[48.7499950023494, 51.74999500219946, 43.49999500249934]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[52.9, 55.4, 51.4]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-4.56, -0.31521739130434767, -8.805555555555555]
+
+---define_sub_goal()---
+['Stop', 'East', 'South']
+[-0.4999975002374786, 1.7500024997625214, -4.749997500237479]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.4782608695652173, 4.726190476190476, 8.973684210526315]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.500002499762521, 8.750002499762521, 12.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'South']
+[0.4736842105263157, 4.720588235294118, 8.973684210526315]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[8.750002499762521, 4.500002499762521, 12.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North']
+[3.7261904761904763, 2.7282608695652173, 4.726190476190476, -0.5294117647058827]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[8.750002499762521, 4.500002499762521, 7.0000024997625205]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North']
+[2.7282608695652173, 1.7282608695652177, 0.7236842105263155, -2.5217391304347823]
+
+---define_sub_goal()---
+['Stop', 'East', 'South']
+[2.500002499762522, 1.5000024997625219, 4.750002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-3.5217391304347827, -7.77, 0.7261904761904758]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-2.7499975002374786, 0.5000024997625219, 2.750002499762522, -3.7499975002374786, -3.7499975002374786]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.4782608695652173, 4.726190476190476, 8.976190476190476]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.500002499762521, 8.750002499762521, 9.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-0.5217391304347823, 2.7282608695652173, 4.98, 4.728260869565218]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[4.750002499762521, 7.000002499762521, 3.500002499762522]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-0.5217391304347823, 2.7327586206896552, 4.731481481481481, 4.981481481481482, -0.5217391304347823]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[4.750002499762521, 7.000002499762521, 4.750002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[0.7314814814814818, 2.98, -2.5199999999999996]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.5000024997625219, 2.750002499762522, 5.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.4814814814814814, 4.73, 8.978260869565219]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.500002499762521, 8.750002499762521, 12.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.48, 4.728260869565218, 8.976190476190476]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[4.500002499762521, 8.750002499762521, 12.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.4761904761904763, 4.723684210526316, 8.970588235294118]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[4.500002499762521, 8.750002499762521, 12.000002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[3.723684210526316, -0.5294117647058827, 5.976190476190476]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[8.750002499762521, 5.750002499762521, 6.750002499762521, 3.500002499762522, 8.750002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[3.98, 1.7282608695652177, -0.5294117647058827]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[6.000002499762521, 3.750002499762522, 1.5000024997625219]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[8.982758620689655, 4.731481481481481, 0.48, 0.48]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[8.750002499762521, 8.750002499762521, 4.500002499762521, 4.500002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-10.516129032258066, -11.517241379310343, -12.518518518518519]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-9.749997500237479, -10.749997500237479, -11.749997500237479]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-5.767241379310345, -4.766129032258065, -5.767241379310345, -5.767241379310345, -0.5161290322580645]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-0.7499975002374781, -4.999997500237479, 0.25000249976252187]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-0.5172413793103452, 0.482758620689655, -0.5172413793103452, 4.733870967741935]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[4.500002499762521, 0.25000249976252187, 8.750002499762521]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.482758620689655, 4.733870967741935, 0.482758620689655, 0.482758620689655, 8.982758620689655]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[7.2500099992000635, 3.000009999200064, 10.500009999200064]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[-2.3099999999999996, -1.3055555555555554, -6.5555555555555545]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-2.5599999999999996, -1.5555555555555554, -0.5517241379310347]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-7.8055555555555545, -8.801724137931034, -9.805555555555555]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-7.06, -8.055555555555555, -9.051724137931034]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[-6.815217391304348, -7.81, -5.81]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-6.065217391304348, -5.06, -7.071428571428572]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-3.81, -4.815217391304348, -5.821428571428571, -5.821428571428571, -5.821428571428571]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.18999999999999995, -4.065217391304348, -5.071428571428571]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-3.8214285714285716, 0.4347826086956521, -3.8214285714285716, 4.69]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[4.434782608695652, 0.1785714285714286, 8.69]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North']
+[8.944444444444445, 4.69, 0.4347826086956521]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[11.948275862068964, 8.698275862068964, 4.444444444444445]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[8.951612903225806, 4.701612903225806, 0.4516129032258065]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[8.704545454545455, 4.454545454545454, 11.951612903225806]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-10.295454545454545, -9.298387096774194, -14.542857142857144]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-9.545454545454545, -8.548387096774194, -10.542857142857143]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-17.798387096774192, -16.801724137931036, -18.795454545454547]
+
+---define_sub_goal()---
+['Stop', 'East', 'North', 'South']
+[-17.051724137931036, -16.055555555555557, -18.048387096774192, -18.048387096774192]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-16.801724137931036, -15.805555555555555, -14.81]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-16.060000000000002, -15.06521739130435, -14.071428571428571, -14.071428571428571, -16.055555555555557]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-14.821428571428571, -13.828947368421053, -12.838235294117647]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-14.071428571428571, -13.078947368421053, -12.088235294117647]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-12.821428571428571, -11.828947368421053, -10.838235294117647, -12.821428571428571]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-11.078947368421053, -10.088235294117647, -12.071428571428571]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-10.821428571428571, -9.828947368421053, -8.838235294117647, -10.821428571428571, -10.821428571428571]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-10.071428571428571, -9.078947368421053, -8.088235294117647]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-8.821428571428571, -7.828947368421052, -6.838235294117647]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[-8.071428571428571, -7.078947368421052, -6.088235294117647, -8.071428571428571]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-6.821428571428571, -5.828947368421052, -4.838235294117647, -6.821428571428571]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-6.071428571428572, -5.078947368421052, -0.8382352941176472]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-4.828947368421052, -0.5789473684210527, 2.6710526315789473]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-0.8289473684210527, 2.4210526315789473, 4.678571428571429, -0.8289473684210527, 4.421052631578947]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-0.5882352941176472, -0.3289473684210522, 2.6617647058823533]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North']
+[1.4117647058823528, 1.6710526315789478, 2.661764705882353, 4.661764705882353]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-151.3653846153846, -147.1153846153846, 0.6617647058823528]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North']
+[-5.865384615384616, -150.63636363636363, 0.3981900452488689, -151.63636363636363]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'South']
+[-153.38636363636363, -79.47680995475113, -0.3289473684210522]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-150.35, -151.3653846153846, 1.6785714285714288]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-7.838235294117648, -153.33823529411765, -10.491037376048817, -154.35, 0.6785714285714284]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-49.49561403508772, -150.33823529411765, 1.4210526315789476]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North']
+[-13.838235294117647, -14.828947368421053, -13.821428571428571]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-14.071428571428571, -13.065217391304348, -15.078947368421053]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-11.865384615384615, -12.81521739130435, -11.81, -13.821428571428571, -13.821428571428571]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-13.06521739130435, -12.06, -7.8055555555555545]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-3.81, 0.4444444444444444, 4.694444444444445, -3.81]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[4.44, 28.19, 0.18999999999999995]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[17.44, 56.184782608695656, 0.43999999999999995]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[16.44, 54.19, 16.44]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'South']
+[10.69, -7.06, -7.06]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-1465.5714285714287, -1005.3152173913044, 7.69]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'South']
+[-1029.0652173913043, -1030.06, -17.060000000000002]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-1033.06, -1032.06, -20.060000000000002]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-1032.06, -1031.06, -17.060000000000002]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-1035.06, -1034.06, -18.060000000000002]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North', 'South']
+[-15.06, -1034.06, -1033.06, -20.053639846743295]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-16.065217391304348, -526.0652173913043, -1036.0652173913043]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-13.065217391304348, -14.065217391304348, -15.065217391304348, -15.065217391304348, -15.065217391304348]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[12.68478260869565, -15.06521739130435, -16.065217391304348]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[16.684782608695652, 15.68478260869565, -13.06521739130435]
+
+---define_sub_goal()---
+['Stop', 'East', 'North', 'South']
+[13.684782608695652, 12.684782608695652, 14.684782608695652, 12.684782608695652]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[-13.065217391304348, -12.065217391304348, -14.071428571428571]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-16.07142857142857, -15.071428571428571, -14.065217391304348, -16.07142857142857, -16.07142857142857]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-12.071428571428571, -11.065217391304348, 27.69]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North']
+[-14.065217391304348, 23.69, -14.065217391304348, 2591.4444444444443]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[2596.4444444444443, 2601.4444444444443, 27.69]
+
+---define_sub_goal()---
+['Stop', 'East', 'South']
+[2596.4444444444443, 2601.4444444444443, 2591.4444444444443]
+
+---Game is running, pacman.py/runGame()---
+
+--- 22521178 is options.randomSeed, pacman.py/readCommand()---
+['-l', 'mediumClassic', '-p', 'ExpectimaxAgent', '-a', 'depth=3,evalFn=betterEvaluationFunction', '-s', '22521179']
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-0.3850193927423947, -0.40882891088338247, -0.379930711405836]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-0.38416757920396594, -0.38416757920396594, -0.35650563728179746]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-0.3972508955100247, -0.3737098121057817, -0.27795649822557633]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-0.37382582138598586, -0.2780725075057805, -0.18345555158051818]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'North']
+[-0.20685675749547297, -0.11375494551013468, -0.07295204364746957]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-0.07306805292767374, -0.033780295004932986, -0.11387095479033886]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[-0.08161213569956391, -0.09860350611089268, -0.0604521061430949, -0.08161213569956391, -0.13789126403363364]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[-0.09871951539109684, -0.06056811542329907, -0.023290836959303868]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[-0.07777229024728358, -0.040495011783288126, -0.02149316191321371, -0.003904543072280303]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[-0.004020552352484469, -0.04061102106349229, 0.032020468556133]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[0.014816293732148739, 0.37195803417683415, -0.021224727176468977]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.011128873736408945, 0.3682706141810943, 0.4265628790530015]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.3986854756390851, 0.4615169740451611, 0.5236616626982494]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[0.5190954837159494, 0.5860478406399511, 0.6530001975639526]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.28839400643719504, 0.35307362472608306, 0.22333559837578815]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.37796024013216245, 0.44491259705616376, 0.31100788320816075]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.30468993331680594, 0.34163574100884964, 0.28535661267477974]
+
+---define_sub_goal()---
+['West', 'Stop', 'North', 'South']
+[0.3710209816720768, 0.36930014808006817, 0.43625250500406965, 0.33235434038802447]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.25098974828111775, 0.264370658212132, 0.2642718860433386]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.3059240236090458, 0.32525734425107167, 0.2865907029670194]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.6009055287604658, 0.6678578856844675, 0.5339531718364643]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[0.5846914850153557, 0.517739128241298, 0.450786771467237]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.095852771178005, 0.9442859526409323, 0.8176703855798758]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.6780741581185312, 0.6111218013444853, 0.5441694445704366]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[1.5185996847808276, 1.2189157506519799, 2.0480472295916727]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.7509081868292198, 0.6839558300551768, 0.8178605436032594]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North']
+[3.347102532663382, 3.3384424406112876, 3.4423406052273324, 3.3384424406112876]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[0.8092004515511654, 0.7422480947771254, 0.6839558300551768]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North']
+[0.46092609954383734, 0.4569773173687338, 0.5056877721237182, 0.45226600749174306]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[0.4472794979716068, 0.4938071157805731, 0.5367148421855578]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.37010540600017094, 0.3582908447592723, 0.4145699730933421]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.39936815874380244, 0.4206651128836347, 0.38616824817318873, 0.37750815612109445, 0.48140632073713957]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.31587151640085664, 0.32210032276701084, 0.3697193590489863]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[0.3157555071206525, 0.3696033497687822, 0.38371930519159114]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.375175222419701, 0.41733839533096173, 0.361059266996892]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.3999959459519249, 0.41722238605075757, 0.47895737775554204, 0.3750592131394968, 0.3750592131394968]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.5311545028371567, 0.4704132949836519, 0.4086783032788674]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.5979908504809541, 0.5372496426274492, 0.4755146509226649, 0.4755146509226649, 0.4755146509226649]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.5611610520691148, 0.5418277314270887, 0.4810865235735837]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.5979908504809541, 0.5610450427889107, 0.5417117221468846]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[0.5807866756569696, 0.5438408679649261, 0.5749887498478511, 0.6477390325809714]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.653834172371264, 0.7207865292952657, 0.5868818154472623]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[0.5269836666146911, 0.4600313096906893, 0.5410996220375, 0.46735661510195936]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.546200977976513, 0.5603169333993218, 0.5313120795582645]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.6576841517813147, 0.6694565041010744, 0.6849584262743269, 0.6849584262743269, 0.6286792979402571]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.7289566476277431, 0.6886738154628965, 0.6726775192936733]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.7053031880632902, 0.7170755403830499, 0.6762983342222326, 0.7801964988382777, 0.6762983342222326]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.7756360673342959, 0.7217882246861662, 0.8373710590390803]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[0.6439542433096903, 0.6321396820687917, 0.6190175104972622, 0.6549518770423688, 0.6190175104972622]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[0.6548358677621646, 0.7086837104102942, 0.6320236727885875]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'South']
+[0.7844121686665944, 0.7219042339663704, 0.6587832755111426]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.8512485163103918, 0.7887405816101678, 0.7256196231549401]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.8957793331911917, 0.8340443414864075, 0.7715364067861833]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[0.9564045317644925, 0.8956633239109876, 0.8339283322062033]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[0.9986339544633821, 0.939200356940508, 0.8784591490870031]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.056182422846963, 0.9985179451831779, 0.9390843476603038]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.078781419417117, 1.0272136009600377, 0.972025891098977]
+
+---define_sub_goal()---
+['Stop', 'East', 'South']
+[1.0346997736292827, 1.0117130532129108, 1.0616846047441355]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.9484226993208303, 0.9484226993208303, 0.995180192427904]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.0507472355855687, 1.0700053180848181, 1.0223862818028426, 1.0137261897507484, 1.1159787589175616]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[0.9768963913389092, 0.9816077012158998, 0.9535367976212078]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.0546410799506678, 0.9961137027007311, 1.0008250125777218, 0.9921649205256275, 0.9921649205256275]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.2055304348489, 1.176909234946657, 1.14581126724169]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North']
+[1.2806913902824983, 1.2054144255686958, 1.1767932256664528, 1.2798855418938246]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[1.1088654595496463, 1.1637729453956012, 1.0791489605057223]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North']
+[1.1087494502694422, 1.163656936115397, 1.1087494502694422, 1.2398971722996153]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.3980197165146386, 1.4724908328397686, 1.321779480330421]
+
+---define_sub_goal()---
+['West', 'Stop', 'South']
+[1.8702104598056664, 1.4785859726300614, 1.4054224666355626]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.8378568588927882, 1.8106046139189231, 1.413762761524101]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.8639993107351693, 1.837740849612584, 1.810488604638719]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'South']
+[1.5697442015293386, 1.5372745913362564, 1.6022138117224207]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.5757793817040249, 1.5458160497050533, 1.5813434830457473]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.5697442015293386, 1.5372745913362564, 1.6022138117224207]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.5782856598981354, 1.5433097715109427, 1.5890161556757991]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[1.5372745913362564, 1.5697442015293384, 1.5134650731952688, 1.5459346833883505]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.5820952027531832, 1.5478864534306227, 1.5220065315640656]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North', 'South']
+[1.4983156471063754, 1.5134650731952688, 1.4658460369132933, 1.522125165247363]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.5020065562781255, 1.4796785270252122, 1.5240769352896348]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.5697442015293386, 1.5372745913362564, 1.6022138117224207]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.5835766916412575, 1.5523842270413426, 1.5907552948052772]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[1.5697442015293386, 1.6022138117224207, 1.5372745913362564]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.5511070814481753, 1.5820952027531832, 1.589016155675799]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.5372745913362564, 1.5697442015293386, 1.6022138117224207]
+
+---define_sub_goal()---
+['West', 'Stop', 'North']
+[1.5478864534306227, 1.5782856598981354, 1.5890161556757991]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.5459346833883505, 1.5697442015293384, 1.5134650731952688]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[1.5757793817040249, 1.5458160497050535, 1.5803560636237048, 1.5240769352896348]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.5134650731952688, 1.4983156471063754, 1.522125165247363]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.4781970381371379, 1.4956907352289672, 1.4830475873341846, 1.4830475873341846, 1.5220065315640654]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.4983156471063754, 1.5134650731952688, 1.522125165247363]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[1.5020065562781255, 1.5240769352896348, 1.4781970381371379]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.418227000631318, 1.4420365187723057, 1.4658460369132933]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.4695369460850436, 1.44720891683213, 1.4233993986911424]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.4809954630021869, 1.457185944861199, 1.4333764267202114]
+
+---define_sub_goal()---
+['Stop', 'East', 'North']
+[1.4608768540329493, 1.438548824780036, 1.4916073250965531]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.5134650731952688, 1.5372745913362564, 1.4809954630021869]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.4916073250965531, 1.5171559823670189, 1.549625592560101, 1.5258160744191132, 1.4916073250965531]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.5134650731952688, 1.4983156471063754, 1.522125165247363]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.4764578990076596, 1.4956907352289672, 1.5220065315640656]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.5372745913362564, 1.5697442015293386, 1.6022138117224207]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.531163961801023, 1.7384568938217155, 1.768759469617167]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.3944174824903302, 1.418227000631318, 1.4420365187723057]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.5487545502645057, 1.5487545502645057, 1.5487545502645057]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.290519317874285, 1.2667097997332972, 1.2667097997332972]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.2878944059968769, 1.2640848878558892, 1.3791433636916044]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.290519317874285, 1.2667097997332972, 1.2667097997332972]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.2904006841909874, 1.2665911660499998, 1.242781647909012]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.4095669085792237, 1.3857573904382359, 1.3619478722972482]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.4181083669480203, 1.3856387567549384, 1.3618292386139506]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[-0.025478872159528404, -0.05794848235261038, -0.09041809254569236]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.410172250135836, 1.4029594056744386, 1.3704897954813566, 1.4416401649380177, 1.3704897954813566]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.5045246365890905, 1.5422116120013898, 1.4658438773255116]
+
+---define_sub_goal()---
+['West', 'Stop', 'North', 'South']
+[1.5552001169970575, 1.5420956027211856, 1.5044086273088864, 1.5044086273088864]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.5466560342251678, 1.5141864240320855, 1.4772723916152255]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.5552001169970575, 1.5465400249449635, 1.5140704147518813]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.4534628734742379, 1.4817168138390033, 1.4534628734742379, 1.5141864240320855, 1.4903769058910976]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.5140704147518813, 1.4816008045587992, 1.5465400249449635]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.3150501868520894, 1.3475197970451713, 1.3150501868520894, 1.3150501868520894, 1.3713293151861592]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.371213305905955, 1.3474037877649672, 1.3950228240469427]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'East', 'North']
+[1.3301996129409828, 1.3381361945684789, 1.3495647088581928]
+
+---define_sub_goal()---
+['Stop', 'North', 'South']
+[1.3494486995779884, 1.3680408524997592, 1.3300836036607786]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.3495647088581928, 1.368156861779963, 1.3857552308504542, 1.3857552308504542, 1.3495647088581928]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[1.3680408524997592, 1.3856392215702502, 1.4019299803101102]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[1.3857552308504542, 1.4020459895903141, 1.4165676284710855]
+
+---define_sub_goal()---
+['West', 'Stop', 'North', 'South']
+[1.4019299803101102, 1.4164516191908814, 1.4371565823210224, 1.4019299803101102]
+
+---define_sub_goal()---
+
+---define_goal()---
+['Stop', 'North', 'South']
+[1.4490372386641674, 2.045380250167405, 1.425855507731302]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'North', 'South']
+[1.4582091086441797, 2.0566808601095294, 2.852559833563941, 1.4582091086441797, 1.4582091086441797]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[2.0304828878913552, 2.824662295061141, 3.6256456768445364]
+
+---define_sub_goal()---
+['West', 'Stop', 'East']
+[2.833022100079724, 3.636018212545027, 4.422008781482951]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East', 'South']
+[3.5562369411366115, 4.359697090722731, 16.33005401696417, 3.5562369411366115]
+
+---define_sub_goal()---
+['West', 'Stop', 'East', 'South']
+[4.367128821499681, 16.339498478423025, 16.34181866402711, 4.367128821499681]
+
+---define_sub_goal()---
+
+---define_goal()---
+['West', 'Stop', 'East']
+[16.289702832705554, 16.292023018309635, 16.29434320391372]
+Scores:       1739.0
+Record:        Win
+Num Turn:      [127, 151, 131]

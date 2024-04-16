@@ -1,0 +1,18 @@
+\begin{longtable}{llrrrrrrrrr}
+\toprule
+ & mertric & scExp & defExp & myExp & scMin & defMin & myMin & scAlp & defAlp & myAlp \\
+\midrule
+\endfirsthead
+\toprule
+ & mertric & scExp & defExp & myExp & scMin & defMin & myMin & scAlp & defAlp & myAlp \\
+\midrule
+\endhead
+\midrule
+\multicolumn{11}{r}{Continued on next page} \\
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
+0 & meanAvgScore & 219.27 & 376.87 & 710.33 & 45.43 & 175.53 & 681.20 & 45.43 & 175.53 & 681.20 \\
+1 & meanAvgWinRate & 0.47 & 0.60 & 0.70 & 0.37 & 0.47 & 0.67 & 0.37 & 0.47 & 0.67 \\
+\end{longtable}
