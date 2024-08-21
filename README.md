@@ -136,6 +136,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-Thank you for exploring our Pacman Game Evaluation Function! We welcome any feedback or questions through [contact information or GitHub issues]. 
-
-We hope you find this project insightful and beneficial for your AI and game development endeavors!
