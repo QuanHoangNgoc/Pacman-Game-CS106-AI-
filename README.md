@@ -21,12 +21,11 @@ Our primary users include:
 - **AI Researchers**: Interested in studying adversarial search algorithms and their applications.
 - **Students**: Learning about game theory and AI through practical examples.
 
----
 ### Demo and Results
 
 The evaluation function has been tested across various maps, yielding impressive results. For example, in a series of experiments, our proposal evaluation function achieved a mean average score of **710.33** and a win rate of **70%**, outperforming traditional evaluation functions.
 
-![Demo Screenshot](link-to-screenshot)
+**[Demo]()**
 
 ---
 ## How did we do it?
@@ -68,9 +67,6 @@ To set up and run this project, follow these steps:
 1. **Clone the repository:**
 2. **Install dependencies:**
 3. **Run the project:**
-
----
-## How to Run the Game
 
 You can run the Pacman game with various options as follows:
 
