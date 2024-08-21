@@ -25,7 +25,7 @@ Our primary users include:
 
 The evaluation function has been tested across various maps, yielding impressive results. For example, in a series of experiments, our proposal evaluation function achieved a mean average score of **710.33** and a win rate of **70%**, outperforming traditional evaluation functions.
 
-**[Demo]()**
+**[Demo in content file]()**
 
 ---
 ## How did we do it?
