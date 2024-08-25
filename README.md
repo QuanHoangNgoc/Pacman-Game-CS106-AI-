@@ -25,8 +25,8 @@ Our primary users include:
 
 The evaluation function has been tested across various maps, yielding impressive results. For example, in a series of experiments, our proposal evaluation function achieved a mean average score of **710.33** and a win rate of **70%**, outperforming traditional evaluation functions.
 
-**[Demo in content file](https://drive.google.com/drive/folders/1U27B4AivpnymxOxkt_nk74tRtrr1WbJ8)**
-**[Kaggle experiment](https://www.kaggle.com/code/quanhoangngoc/pacman-runspace-cs106-ai-assignment-4?scriptVersionId=172240798)**
+- **[Demo in content file](https://drive.google.com/drive/folders/1U27B4AivpnymxOxkt_nk74tRtrr1WbJ8)**
+- **[Kaggle experiment](https://www.kaggle.com/code/quanhoangngoc/pacman-runspace-cs106-ai-assignment-4?scriptVersionId=172240798)**
 
 ---
 ## How did we do it?
